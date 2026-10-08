@@ -61,10 +61,13 @@ for key, topic, keywords in topics:
     for audience in audiences:
         for fmt in formats:
             title = f"{topic} — {fmt} {audience}"
+            seo_title = f"{topic}: {fmt} | Ethical Zenith"
             filename = f"{n:04d}-{key}-{slug(fmt)}-{slug(audience)}.html"
             url = f"{BASE}/articles/{filename}"
             tags = " ".join("#" + slug(k).replace("-", "") for k in keywords.split(", "))
-            description = f"Educational guidance about {keywords}, evidence preservation, verification, security and responsible investigative next steps."
+            description = f"Practical {topic.lower()} guidance {audience}, covering evidence, verification, security and responsible next steps."
+            if len(description) > 160:
+                description = description[:157].rsplit(" ", 1)[0] + "..."
             body = f"""
 <p>When a digital incident affects money, accounts or online assets, the first priority is a reliable record of what happened. This educational guide covers <strong>{escape(topic.lower())}</strong> {escape(audience)} and focuses on evidence-led, responsible investigation.</p>
 <p>Begin with a timeline. Record the last known successful access, the first sign of suspicious activity, transaction dates, platform names and actions taken afterward. Preserve original emails, messages, receipts, screenshots, wallet addresses, transaction identifiers and account notifications. Keep originals unchanged and make working copies for analysis.</p>
@@ -76,7 +79,7 @@ for key, topic, keywords in topics:
             html = f"""<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{escape(title)} | Ethical Zenith Hackers Intelligence</title>
+<title>{escape(seo_title)}</title>
 <meta name="description" content="{escape(description)}">
 <meta name="keywords" content="{escape(keywords)}">
 <meta name="robots" content="index,follow,max-image-preview:large">
@@ -84,7 +87,7 @@ for key, topic, keywords in topics:
 <meta property="og:type" content="article"><meta property="og:title" content="{escape(title)}">
 <meta property="og:description" content="{escape(description)}"><meta property="og:url" content="{url}">
 <meta name="twitter:card" content="summary">
-<script type="application/ld+json">{json.dumps({"@context":"https://schema.org","@type":"Article","headline":title,"description":description,"datePublished":TODAY,"dateModified":TODAY,"author":{"@type":"Organization","name":"Ethical Zenith Hackers Intelligence"},"mainEntityOfPage":url}, ensure_ascii=False)}</script>
+<script type="application/ld+json">{json.dumps({"@context":"https://schema.org","@type":"Article","headline":title,"description":description,"datePublished":TODAY,"dateModified":TODAY,"image":f"{BASE}/hero-blog.png","author":{"@type":"Organization","name":"Ethical Zenith Hackers Intelligence","logo":{"@type":"ImageObject","url":f"{BASE}/hero-blog.png"}},"publisher":{"@type":"Organization","name":"Ethical Zenith Hackers Intelligence","logo":{"@type":"ImageObject","url":f"{BASE}/hero-blog.png"}},"mainEntityOfPage":url}, ensure_ascii=False)}</script>
 <style>body{{margin:0;background:#071827;color:#eaf7ff;font:17px/1.8 Arial,sans-serif}}main{{max-width:850px;margin:auto;padding:55px 22px}}a{{color:#55eaff}}article{{background:#0d2638;border:1px solid #28536b;border-radius:18px;padding:30px}}h1{{font-size:clamp(34px,6vw,58px);line-height:1.08}}.tag,.hashtags{{color:#55eaff}}.notice{{padding:15px;border-left:3px solid #55eaff;background:#102f42}}footer{{margin-top:35px;color:#9bb4c4;font-size:13px}}</style>
 </head><body><main><a href="../index.html">← Ethical Zenith Hackers Intelligence Blog</a>
 <article><div class="tag">DIGITAL INTELLIGENCE • ARTICLE {n}</div><h1>{escape(title)}</h1>
