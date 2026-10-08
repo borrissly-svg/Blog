@@ -55,6 +55,7 @@ def slug(s):
     return "".join(c.lower() if c.isalnum() else "-" for c in s).strip("-")
 
 urls = []
+manifest = []
 n = 1
 for key, topic, keywords in topics:
     for audience in audiences:
@@ -93,6 +94,7 @@ for key, topic, keywords in topics:
 <h2>Key takeaways</h2><ul><li>Preserve original evidence and build a precise timeline.</li><li>Use transaction IDs and public records carefully.</li><li>Never disclose passwords, private keys or recovery phrases.</li><li>Verify claims and use official reporting channels.</li><li>Be skeptical of guaranteed recovery promises.</li></ul>
 <p class="hashtags">{escape(tags)}</p></article><footer>© 2026 Ethical Zenith Hackers Intelligence Blog · <a href="../index.html">All articles</a></footer></main></body></html>"""
             (out / filename).write_text(html, encoding="utf-8")
+            manifest.append({"title": title, "url": url, "topic": topic, "keywords": keywords, "tags": tags, "number": n})
             urls.append(url)
             n += 1
 
@@ -101,5 +103,6 @@ for u in [f"{BASE}/", *urls]:
     sitemap.append(f"  <url><loc>{u}</loc><lastmod>{TODAY}</lastmod></url>")
 sitemap.append("</urlset>")
 Path("sitemap.xml").write_text("\n".join(sitemap), encoding="utf-8")
+Path("articles.json").write_text(json.dumps(manifest, ensure_ascii=False), encoding="utf-8")
 Path("robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n", encoding="utf-8")
 print(f"Generated {len(urls)} articles, sitemap.xml and robots.txt")
