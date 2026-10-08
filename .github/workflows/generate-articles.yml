@@ -25,6 +25,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add articles sitemap.xml robots.txt
+          git add articles articles.json sitemap.xml robots.txt
           git diff --cached --quiet || git commit -m "Generate 1000 SEO cybersecurity intelligence articles"
           git push
