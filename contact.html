@@ -23,16 +23,19 @@
 <main class="wrap layout">
 <section class="box">
 <div class="kicker">Contact form</div>
-<form id="contactForm">
+<form id="contactForm" action="https://formsubmit.app/f/u2k28kxr7c" method="POST">
 <label for="name">Full name</label><input id="name" name="name" autocomplete="name" required>
 <label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" required>
 <label for="type">Inquiry type</label>
 <select id="type" name="type" required><option value="">Select one</option><option>General inquiry</option><option>Security consultation inquiry</option><option>Article / publication inquiry</option><option>Request a follow-up</option><option>Other</option></select>
 <label for="reference">Reference or case title (optional)</label><input id="reference" name="reference" maxlength="120">
+<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
+<input type="hidden" name="_ts" id="formTimestamp">
+<input type="hidden" name="_subject" value="Ethical Zenith Intelligence — New Contact Inquiry">
 <label for="message">Message</label><textarea id="message" name="message" maxlength="4000" placeholder="Describe your inquiry without including passwords, private keys, seed phrases, authentication codes, or other secrets." required></textarea>
 <div class="notice"><strong>Security warning:</strong> Never submit passwords, private keys, seed/recovery phrases, authentication codes, full payment-card details, or other credentials through this form.</div>
 <label class="check"><input type="checkbox" id="confirm" required><span>I understand that I should not include passwords, private keys, seed phrases, authentication codes, or other sensitive credentials.</span></label>
-<button class="btn" type="submit">Prepare Email →</button>
+<button class="btn" id="submitBtn" type="submit">Send Message →</button>
 <p class="muted" id="status" aria-live="polite"></p>
 </form>
 </section>
@@ -49,17 +52,47 @@
 </main>
 <footer><div class="wrap">© 2026 Ethical Zenith Hackers Intelligence Blog · <a href="index.html">Blog</a></div></footer>
 <script>
-document.getElementById("contactForm").addEventListener("submit",function(e){
+const contactForm=document.getElementById("contactForm");
+const status=document.getElementById("status");
+const submitBtn=document.getElementById("submitBtn");
+document.getElementById("formTimestamp").value=Date.now();
+
+contactForm.addEventListener("submit",async function(e){
  e.preventDefault();
- const name=document.getElementById("name").value.trim();
- const email=document.getElementById("email").value.trim();
+ if(!contactForm.checkValidity()){contactForm.reportValidity();return;}
+ submitBtn.disabled=true;
+ submitBtn.textContent="Sending…";
+ status.textContent="Sending your message securely…";
+ status.style.color="";
+
+ const data=new FormData(contactForm);
  const type=document.getElementById("type").value;
  const reference=document.getElementById("reference").value.trim();
- const message=document.getElementById("message").value.trim();
- const subject=encodeURIComponent("Ethical Zenith Intelligence — "+type+(reference?" — "+reference:""));
- const body=encodeURIComponent("Name: "+name+"\nEmail: "+email+"\nInquiry type: "+type+"\nReference: "+(reference||"N/A")+"\n\nMessage:\n"+message);
- document.getElementById("status").textContent="Opening your email application…";
- window.location.href="mailto:support@zenithhackers.com?subject="+subject+"&body="+body;
+ data.set("_subject","Ethical Zenith Intelligence — "+type+(reference?" — "+reference:""));
+
+ try{
+   const res=await fetch(contactForm.action,{
+     method:"POST",
+     body:data,
+     headers:{Accept:"application/json"}
+   });
+   const result=await res.json();
+   if(result.ok){
+     contactForm.reset();
+     document.getElementById("formTimestamp").value=Date.now();
+     status.textContent="Thank you. Your message has been sent successfully. We will get back to you soon.";
+     status.style.color="var(--cyan)";
+   }else{
+     status.textContent=(result.error&&result.error.message)||"We could not send your message. Please try again.";
+     status.style.color="#ffb4b4";
+   }
+ }catch(error){
+   status.textContent="Network error. Please check your connection and try again.";
+   status.style.color="#ffb4b4";
+ }finally{
+   submitBtn.disabled=false;
+   submitBtn.textContent="Send Message →";
+ }
 });
 </script>
 <script src="whatsapp.js"></script>
