@@ -32,6 +32,7 @@
 <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
 <input type="hidden" name="_ts" id="formTimestamp">
 <input type="hidden" name="_subject" value="Ethical Zenith Intelligence — New Contact Inquiry">
+<input type="hidden" name="_redirect" value="https://borrissly-svg.github.io/Blog/index.html#about">
 <label for="message">Message</label><textarea id="message" name="message" maxlength="4000" placeholder="Describe your inquiry without including passwords, private keys, seed phrases, authentication codes, or other secrets." required></textarea>
 <div class="notice"><strong>Security warning:</strong> Never submit passwords, private keys, seed/recovery phrases, authentication codes, full payment-card details, or other credentials through this form.</div>
 <label class="check"><input type="checkbox" id="confirm" required><span>I understand that I should not include passwords, private keys, seed phrases, authentication codes, or other sensitive credentials.</span></label>
@@ -78,10 +79,8 @@ contactForm.addEventListener("submit",async function(e){
    });
    const result=await res.json();
    if(result.ok){
-     contactForm.reset();
-     document.getElementById("formTimestamp").value=Date.now();
-     status.textContent="Thank you. Your message has been sent successfully. We will get back to you soon.";
-     status.style.color="var(--cyan)";
+     window.location.href="https://borrissly-svg.github.io/Blog/index.html#about";
+     return;
    }else{
      status.textContent=(result.error&&result.error.message)||"We could not send your message. Please try again.";
      status.style.color="#ffb4b4";
