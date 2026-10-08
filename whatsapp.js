@@ -11,7 +11,7 @@
   style.textContent = `
     .whatsapp-float {
       position: fixed;
-      top: 18px;
+      bottom: 20px;
       left: 18px;
       z-index: 2147483647;
       display: flex;
@@ -33,7 +33,7 @@
     .wa-icon { width: 24px; height: 24px; display: grid; place-items: center; }
     .wa-icon svg { width: 24px; height: 24px; }
     @media (max-width: 600px) {
-      .whatsapp-float { top: 12px; left: 12px; padding: 9px 11px; }
+      .whatsapp-float { bottom: 14px; left: 12px; padding: 9px 11px; }
       .wa-label { display: none; }
       .wa-icon, .wa-icon svg { width: 27px; height: 27px; }
     }
