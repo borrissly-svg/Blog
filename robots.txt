@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://borrissly-svg.github.io/Blog/sitemap.xml
