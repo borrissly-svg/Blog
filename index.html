@@ -44,5 +44,6 @@ async function loadArticles(){try{if(supabaseClient){const{data,error}=await sup
 buttons.forEach(b=>b.onclick=()=>{buttons.forEach(x=>x.classList.remove('active'));b.classList.add('active');category=b.dataset.cat;render()});input.addEventListener('input',render);sortEl.addEventListener('change',render);loadArticles();
 </script>
 <script src="whatsapp.js"></script>
+<script src="tawk.js"></script>
 </body>
 </html>
