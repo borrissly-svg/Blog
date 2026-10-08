@@ -90,3 +90,11 @@ if (location.pathname.includes("/articles/")) {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", addWhatsApp);
   else addWhatsApp();
 })();
+
+// Load Tawk.to live chat on every generated article page.
+if (location.pathname.includes("/articles/")) {
+  const tawkScript = document.createElement("script");
+  tawkScript.src = "../tawk.js";
+  tawkScript.async = true;
+  document.head.appendChild(tawkScript);
+}
