@@ -23,7 +23,7 @@
 <main class="wrap layout">
 <section class="box">
 <div class="kicker">Contact form</div>
-<form id="contactForm" action="https://formsubmit.app/f/u2k28kxr7c" method="POST">
+<form id="contactForm" action="https://formsubmit.app/f/5u98r5r5jv" method="POST">
 <label for="name">Full name</label><input id="name" name="name" autocomplete="name" required>
 <label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" required>
 <label for="type">Inquiry type</label>
@@ -56,17 +56,10 @@
 const contactForm=document.getElementById("contactForm");
 const submitBtn=document.getElementById("submitBtn");
 document.getElementById("formTimestamp").value=Date.now();
-
 contactForm.addEventListener("submit",function(e){
-  if(!contactForm.checkValidity()){
-    e.preventDefault();
-    contactForm.reportValidity();
-    return;
-  }
+  if(!contactForm.checkValidity()){e.preventDefault();contactForm.reportValidity();return;}
   submitBtn.disabled=true;
   submitBtn.textContent="Sending…";
-  // Allow the browser to POST directly to FormSubmit.
-  // FormSubmit then redirects to the About section configured in _redirect.
 });
 </script>
 <script src="whatsapp.js"></script>
