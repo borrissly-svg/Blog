@@ -1,5 +1,6 @@
 from pathlib import Path
 from html import escape
+import json
 from datetime import date
 
 BASE = "https://borrissly-svg.github.io/Blog"
@@ -82,7 +83,7 @@ for key, topic, keywords in topics:
 <meta property="og:type" content="article"><meta property="og:title" content="{escape(title)}">
 <meta property="og:description" content="{escape(description)}"><meta property="og:url" content="{url}">
 <meta name="twitter:card" content="summary">
-<script type="application/ld+json">{escape(str({"@context":"https://schema.org","@type":"Article","headline":title,"description":description,"datePublished":TODAY,"dateModified":TODAY,"author":{"@type":"Organization","name":"Ethical Zenith Hackers Intelligence"},"mainEntityOfPage":url}).replace("'", '"'))}</script>
+<script type="application/ld+json">{json.dumps({"@context":"https://schema.org","@type":"Article","headline":title,"description":description,"datePublished":TODAY,"dateModified":TODAY,"author":{"@type":"Organization","name":"Ethical Zenith Hackers Intelligence"},"mainEntityOfPage":url}, ensure_ascii=False)}</script>
 <style>body{{margin:0;background:#071827;color:#eaf7ff;font:17px/1.8 Arial,sans-serif}}main{{max-width:850px;margin:auto;padding:55px 22px}}a{{color:#55eaff}}article{{background:#0d2638;border:1px solid #28536b;border-radius:18px;padding:30px}}h1{{font-size:clamp(34px,6vw,58px);line-height:1.08}}.tag,.hashtags{{color:#55eaff}}.notice{{padding:15px;border-left:3px solid #55eaff;background:#102f42}}footer{{margin-top:35px;color:#9bb4c4;font-size:13px}}</style>
 </head><body><main><a href="../index.html">← Ethical Zenith Hackers Intelligence Blog</a>
 <article><div class="tag">DIGITAL INTELLIGENCE • ARTICLE {n}</div><h1>{escape(title)}</h1>
