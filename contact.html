@@ -54,44 +54,19 @@
 <footer><div class="wrap">© 2026 Ethical Zenith Hackers Intelligence Blog · <a href="index.html">Blog</a></div></footer>
 <script>
 const contactForm=document.getElementById("contactForm");
-const status=document.getElementById("status");
 const submitBtn=document.getElementById("submitBtn");
 document.getElementById("formTimestamp").value=Date.now();
 
-contactForm.addEventListener("submit",async function(e){
- e.preventDefault();
- if(!contactForm.checkValidity()){contactForm.reportValidity();return;}
- submitBtn.disabled=true;
- submitBtn.textContent="Sending…";
- status.textContent="Sending your message securely…";
- status.style.color="";
-
- const data=new FormData(contactForm);
- const type=document.getElementById("type").value;
- const reference=document.getElementById("reference").value.trim();
- data.set("_subject","Ethical Zenith Intelligence — "+type+(reference?" — "+reference:""));
-
- try{
-   const res=await fetch(contactForm.action,{
-     method:"POST",
-     body:data,
-     headers:{Accept:"application/json"}
-   });
-   const result=await res.json();
-   if(result.ok){
-     window.location.href="https://borrissly-svg.github.io/Blog/index.html#about";
-     return;
-   }else{
-     status.textContent=(result.error&&result.error.message)||"We could not send your message. Please try again.";
-     status.style.color="#ffb4b4";
-   }
- }catch(error){
-   status.textContent="Network error. Please check your connection and try again.";
-   status.style.color="#ffb4b4";
- }finally{
-   submitBtn.disabled=false;
-   submitBtn.textContent="Send Message →";
- }
+contactForm.addEventListener("submit",function(e){
+  if(!contactForm.checkValidity()){
+    e.preventDefault();
+    contactForm.reportValidity();
+    return;
+  }
+  submitBtn.disabled=true;
+  submitBtn.textContent="Sending…";
+  // Allow the browser to POST directly to FormSubmit.
+  // FormSubmit then redirects to the About section configured in _redirect.
 });
 </script>
 <script src="whatsapp.js"></script>
