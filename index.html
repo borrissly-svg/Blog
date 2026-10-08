@@ -43,5 +43,6 @@ function render(){const q=input.value.toLowerCase().trim();let list=articles.fil
 async function loadArticles(){try{if(supabaseClient){const{data,error}=await supabaseClient.from('articles').select('number,topic,title,keywords,tags,url').order('number',{ascending:false});if(!error&&Array.isArray(data)&&data.length){articles=data;render();return}}const res=await fetch('articles.json',{cache:'no-store'});if(!res.ok)throw new Error('manifest unavailable');articles=await res.json();render()}catch(e){countEl.textContent='Article library is being generated…';cardsEl.innerHTML='<div class="box"><h3>Intelligence library</h3><p>The full article library is being prepared. Please refresh shortly.</p></div>'}}
 buttons.forEach(b=>b.onclick=()=>{buttons.forEach(x=>x.classList.remove('active'));b.classList.add('active');category=b.dataset.cat;render()});input.addEventListener('input',render);sortEl.addEventListener('change',render);loadArticles();
 </script>
+<script src="whatsapp.js"></script>
 </body>
 </html>
