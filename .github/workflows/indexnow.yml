@@ -1,0 +1,74 @@
+name: Notify IndexNow when articles change
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "articles/**/*.html"
+      - "articles/*.html"
+      - "sitemap.xml"
+      - "8f4c2a7d9b1e6f305a8c4d2e7b9f1a63.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notify-indexnow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find changed article URLs
+        id: changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+          if [[ -z "$BEFORE" || "$BEFORE" =~ ^0+$ ]]; then
+            git ls-files 'articles/*.html' 'articles/**/*.html' > /tmp/changed-files.txt
+          else
+            git diff --name-only "$BEFORE" "$AFTER" -- 'articles/*.html' 'articles/**/*.html' > /tmp/changed-files.txt
+          fi
+          python3 - <<'PY'
+          import json, os
+          base = "https://borrissly-svg.github.io/Blog/"
+          with open("/tmp/changed-files.txt", encoding="utf-8") as f:
+              paths = [line.strip() for line in f if line.strip().endswith(".html")]
+          urls = [base + p for p in paths if p.startswith("articles/")]
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write("has_urls=" + ("true" if urls else "false") + "\n")
+              out.write("urls_json=" + json.dumps(urls, separators=(",", ":")) + "\n")
+          print(f"Found {len(urls)} changed article URL(s).")
+          PY
+
+      - name: Notify IndexNow
+        if: steps.changed.outputs.has_urls == 'true'
+        env:
+          URLS_JSON: ${{ steps.changed.outputs.urls_json }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/indexnow-payload.json
+          import json, os
+          key = "8f4c2a7d9b1e6f305a8c4d2e7b9f1a63"
+          key_location = "https://borrissly-svg.github.io/Blog/" + key + ".txt"
+          urls = json.loads(os.environ["URLS_JSON"])
+          print(json.dumps({
+              "host": "borrissly-svg.github.io",
+              "key": key,
+              "keyLocation": key_location,
+              "urlList": urls[:10000]
+          }))
+          PY
+          curl --fail-with-body --silent --show-error \
+            -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            --data-binary @/tmp/indexnow-payload.json \
+            -o /tmp/indexnow-response.txt \
+            -w "IndexNow HTTP status: %{http_code}\n"
+          cat /tmp/indexnow-response.txt || true
