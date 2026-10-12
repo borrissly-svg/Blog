@@ -33,7 +33,13 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: python -m pip install requests
+        run: python -m pip install requests beautifulsoup4
+
+      - name: Generate RSS feed if missing
+        run: |
+          if [ ! -f rss.xml ]; then
+            python scripts/generate_rss.py
+          fi
 
       - name: Publish new RSS articles to Blogger
         env:
