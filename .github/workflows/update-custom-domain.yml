@@ -58,6 +58,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- '*.html' '*.xml' '*.txt' '*.json' '*.js' '*.md' '*.rss' '*.atom' '*.webmanifest'
+          git add -u
           git commit -m "Update SEO canonical URLs to custom domain"
           git push origin main
