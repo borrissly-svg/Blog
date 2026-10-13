@@ -26,6 +26,8 @@
 <form id="contactForm" action="https://formsubmit.app/f/5u98r5r5jv" method="POST">
 <label for="name">Full name</label><input id="name" name="name" autocomplete="name" required>
 <label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" required>
+<label for="phone">Phone number</label><input id="phone" name="phone" type="tel" autocomplete="tel" required>
+<label for="company">Company or organization</label><input id="company" name="company" autocomplete="organization" required>
 <label for="type">Inquiry type</label>
 <select id="type" name="type" required><option value="">Select one</option><option>Cryptocurrency</option><option>Greyhat</option><option>Case submission</option><option>General inquiry</option><option>Security consultation inquiry</option><option>Article / publication inquiry</option><option>Request a follow-up</option><option>Other</option></select>
 <label for="reference">Reference or case title (optional)</label><input id="reference" name="reference" maxlength="120">
@@ -56,7 +58,15 @@
 const contactForm=document.getElementById("contactForm");
 const submitBtn=document.getElementById("submitBtn");
 document.getElementById("formTimestamp").value=Date.now();
-if(new URLSearchParams(window.location.search).get("type")==="case"){document.getElementById("type").value="Case submission";document.getElementById("reference").focus();}
+const params=new URLSearchParams(window.location.search);
+const safeParam=(key)=>{const value=params.get(key)||"";return value.slice(0,1500);};
+if(params.get("type")==="case"||params.get("type")==="quote"){
+  document.getElementById("type").value=params.get("type")==="quote"?"Security consultation inquiry":"Case submission";
+}
+for(const key of ["name","email","phone","company"]){const el=document.getElementById(key);if(el&&safeParam(key))el.value=safeParam(key).slice(0,300);}
+const service=safeParam("service"),summary=safeParam("summary");
+if(service||summary){document.getElementById("reference").value=(service?"Service: "+service:"").slice(0,120);document.getElementById("message").value=[service?"Requested service: "+service:"",summary?"Request summary: "+summary:""].filter(Boolean).join("\\n\\n");}
+if(params.get("type")==="case"||params.get("type")==="quote")document.getElementById("reference").focus();
 contactForm.addEventListener("submit",function(e){
   if(!contactForm.checkValidity()){e.preventDefault();contactForm.reportValidity();return;}
   submitBtn.disabled=true;
