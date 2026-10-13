@@ -156,15 +156,24 @@ var Tawk_LoadStart = new Date();
     panel.appendChild(copy);
   }
   function speakToAgent() {
-    addMessage("We’ll try to open our live-agent chat. If no agent is available, please leave a message in Tawk.to or use our contact form.", "bot");
+    addMessage("We’ll connect you to our on-site live chat if it is available. You can keep chatting with this Zenith assistant while we check.", "bot");
     try {
-      if (window.Tawk_API && typeof window.Tawk_API.maximize === "function") {
-        if (typeof window.Tawk_API.showWidget === "function") window.Tawk_API.showWidget();
-        window.Tawk_API.maximize();
+      const api = window.Tawk_API;
+      if (api && typeof api.showWidget === "function" && typeof api.maximize === "function") {
+        api.showWidget();
+        api.maximize();
+        addMessage("The live-agent panel should open on this page. If no agent is online, leave a message there or use our contact form.", "bot");
         return;
       }
-    } catch (e) {}
-    window.open("https://tawk.to/chat/6ac7f89bb255d834c35d1a33/default", "_blank", "noopener");
+    } catch (e) {
+      // Keep the visitor on this site if the live-agent widget is unavailable.
+    }
+    addMessage("Our live-agent panel hasn’t loaded yet, so we won’t send you to another page. You can continue asking me questions here, or contact our team using the form on this website.", "bot");
+    const link = document.createElement("a");
+    link.href = new URL("/contact.html", window.location.origin).href;
+    link.textContent = "Contact our team";
+    link.style.cssText = "color:#63edff;padding:0 14px 12px;overflow-wrap:anywhere";
+    panel.appendChild(link);
   }
   function submitCase() { requestLeadDetails("case"); }
   function classify(raw) {
