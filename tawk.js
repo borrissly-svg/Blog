@@ -18,8 +18,8 @@ var Tawk_LoadStart = new Date();
 
   const style = document.createElement("style");
   style.textContent = `
-    #zenith-chat-launcher{position:fixed;right:20px;bottom:88px;z-index:2147483000;border:1px solid #63edff;border-radius:999px;background:linear-gradient(135deg,#11e6ff,#00a8d0);color:#00121c;padding:13px 18px;font:800 14px/1.2 Arial,sans-serif;box-shadow:0 10px 30px #0006;cursor:pointer}
-    #zenith-chat-panel{position:fixed;right:20px;bottom:145px;z-index:2147483000;width:min(365px,calc(100vw - 28px));height:min(520px,calc(100vh - 180px));display:none;flex-direction:column;overflow:hidden;border:1px solid rgba(17,230,255,.55);border-radius:18px;background:#071a2a;color:#f3fbff;box-shadow:0 20px 70px #0009;font:14px/1.5 Arial,sans-serif}
+    #zenith-chat-launcher{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));z-index:2147483000;border:1px solid #63edff;border-radius:999px;background:linear-gradient(135deg,#11e6ff,#00a8d0);color:#00121c;padding:14px 18px;min-height:48px;font:800 14px/1.2 Arial,sans-serif;box-shadow:0 10px 30px #0006;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    #zenith-chat-panel{position:fixed;right:12px;right:max(12px,env(safe-area-inset-right));bottom:calc(76px + env(safe-area-inset-bottom));z-index:2147483000;width:min(365px,calc(100vw - 24px));height:min(520px,calc(100dvh - 105px - env(safe-area-inset-bottom)));height:min(520px,calc(100vh - 105px));max-height:calc(100dvh - 95px - env(safe-area-inset-top) - env(safe-area-inset-bottom));display:none;flex-direction:column;overflow:hidden;border:1px solid rgba(17,230,255,.55);border-radius:18px;background:#071a2a;color:#f3fbff;box-shadow:0 20px 70px #0009;font:14px/1.5 Arial,sans-serif;overscroll-behavior:contain}
     #zenith-chat-panel.open{display:flex}
     .zc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px;background:linear-gradient(120deg,#0d3c55,#092235);border-bottom:1px solid #1a6177}
     .zc-title{font-weight:800}.zc-sub{font-size:11px;color:#9fefff}.zc-close{border:0;background:transparent;color:#fff;font-size:23px;cursor:pointer}
@@ -28,10 +28,10 @@ var Tawk_LoadStart = new Date();
     .zc-bot{align-self:flex-start;background:#12364a;border:1px solid #24576d}.zc-user{align-self:flex-end;background:#0aa7c4;color:#00121c}
     .zc-actions{display:flex;flex-wrap:wrap;gap:7px;padding:0 12px 12px}
     .zc-action{border:1px solid #20cce6;border-radius:999px;background:#0a2a3d;color:#baf7ff;padding:8px 10px;font:700 12px Arial,sans-serif;cursor:pointer}
-    .zc-form{display:flex;gap:8px;padding:12px;border-top:1px solid #21475b;background:#061522}
-    .zc-input{flex:1;min-width:0;border:1px solid #31586b;border-radius:10px;background:#0b2536;color:white;padding:11px;font:14px Arial,sans-serif;outline:none}
-    .zc-send{border:0;border-radius:10px;background:#11e6ff;color:#00121c;padding:0 13px;font-weight:800;cursor:pointer}
-    @media(max-width:480px){#zenith-chat-launcher{right:12px;bottom:78px}#zenith-chat-panel{right:10px;bottom:132px;height:min(520px,calc(100vh - 155px))}}
+    .zc-form{display:flex;gap:8px;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));border-top:1px solid #21475b;background:#061522}
+    .zc-input{flex:1;min-width:0;width:0;border:1px solid #31586b;border-radius:10px;background:#0b2536;color:white;padding:12px;font:16px Arial,sans-serif;outline:none;touch-action:manipulation}
+    .zc-send{border:0;border-radius:10px;background:#11e6ff;color:#00121c;padding:0 14px;min-width:58px;min-height:44px;font-weight:800;cursor:pointer;touch-action:manipulation}
+    @media(max-width:700px){#zenith-chat-launcher{right:max(12px,env(safe-area-inset-right));bottom:calc(12px + env(safe-area-inset-bottom));max-width:calc(100vw - 24px)}#zenith-chat-panel{left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));bottom:calc(72px + env(safe-area-inset-bottom));width:auto;height:calc(100dvh - 90px - env(safe-area-inset-top) - env(safe-area-inset-bottom));max-height:calc(100dvh - 85px - env(safe-area-inset-top) - env(safe-area-inset-bottom));border-radius:16px}.zc-head{padding:12px}.zc-messages{min-height:0}.zc-actions{gap:8px}.zc-action{min-height:40px;touch-action:manipulation}}
   `;
   document.head.appendChild(style);
 
@@ -169,20 +169,20 @@ var Tawk_LoadStart = new Date();
   function submitCase() { requestLeadDetails("case"); }
   function classify(raw) {
     const q = raw.toLowerCase();
-    if (/\\b(quote|quotation|estimate|pricing|price|cost|how much|fee|fees)\\b/.test(q)) return {type:"quote",text:"We can capture a quote request. Final pricing depends on the authorized scope, complexity, and evidence available; our team must assess it before confirming a quote."};
-    if (/\\b(vulnerability|penetration|pentest|web application|network|endpoint|social engineering|configuration review|forensics|incident response|threat model|consulting|crypto|cryptocurrency|asset tracing|blockchain)\\b/.test(q)) return {type:"service",text:"We can help route requests for authorized cybersecurity and lawful investigations. We work to a defined scope and lawful authorization, use evidence-based methods, and cannot guarantee tracing or recovery outcomes."};
+    if (/\b(quote|quotation|estimate|pricing|price|cost|how much|fee|fees)\b/.test(q)) return {type:"quote",text:"We can capture a quote request. Final pricing depends on the authorized scope, complexity, and evidence available; our team must assess it before confirming a quote."};
+    if (/\b(vulnerability|penetration|pentest|web application|network|endpoint|social engineering|configuration review|forensics|incident response|threat model|consulting|crypto|cryptocurrency|asset tracing|blockchain)\b/.test(q)) return {type:"service",text:"We can help route requests for authorized cybersecurity and lawful investigations. We work to a defined scope and lawful authorization, use evidence-based methods, and cannot guarantee tracing or recovery outcomes."};
     return {type:"support",text:"We’ll do our best to help with information about our services and responsible next steps. I can’t verify every case-specific claim in this automated chat, so I’ll offer a team follow-up when needed."};
   }
   function answer(raw) {
     const q = raw.toLowerCase();
-    if (/\\b(hello|hi|hey|good morning|good afternoon|good evening)\\b/.test(q)) return "Hello, welcome to Zenith Hackers Intelligence. What can we help you with today?";
-    if (/\\b(service|services|what do you do|what can you do|offerings)\\b/.test(q)) return "Our services include Vulnerability Assessment & Penetration Testing; Web Application Security; Network & Endpoint Testing; Social Engineering & Configuration Reviews; Forensics & Incident Response; and Threat Modeling & Consulting. We also discuss lawful asset and crypto tracing. All work requires appropriate authorization and a defined scope.";
-    if (/\\b(authori[sz]ation|permission|legal|lawful|scope)\\b/.test(q)) return "We only support work that has appropriate lawful authorization and a clearly defined scope. We do not assist with unauthorized access, credential theft, evading security controls, or invading someone’s privacy.";
-    if (/\\b(crypto|cryptocurrency|blockchain|wallet|transaction|txid|asset tracing)\\b/.test(q)) return "For lawful asset or crypto tracing, preserve transaction hashes, wallet addresses, timestamps, platform names, receipts, and relevant communications. Never share private keys, seed/recovery phrases, passwords, or authentication codes. A trace does not guarantee funds can be recovered.";
-    if (/\\b(hacked|incident|breach|ransomware|malware|phishing|compromised)\\b/.test(q)) return "For an active incident, use a trusted device to secure affected accounts, change compromised passwords, enable MFA, contact the relevant provider or bank, and preserve logs and messages. Avoid altering affected systems unnecessarily if evidence may be needed. We can capture details for a team follow-up.";
-    if (/\\b(guarantee|guaranteed|recover|recovery|will i get|success rate)\\b/.test(q)) return "We cannot guarantee tracing, asset recovery, attribution, or a particular outcome. We assess available evidence and explain realistic options and limitations. Be cautious of anyone promising guaranteed recovery or asking for private keys or seed phrases.";
-    if (/\\b(privacy|personal data|confidential)\\b/.test(q)) return "Please share only the information needed for an initial inquiry. Do not put passwords, authentication codes, private keys, seed phrases, or full payment-card details in chat. Use the contact form for case material and share sensitive evidence only through a team-approved secure method.";
-    if (/\\b(agent|human|person|representative|team member|speak to someone|live support)\\b/.test(q)) { speakToAgent(); return ""; }
+    if (/\b(hello|hi|hey|good morning|good afternoon|good evening)\b/.test(q)) return "Hello, welcome to Zenith Hackers Intelligence. What can we help you with today?";
+    if (/\b(service|services|what do you do|what can you do|offerings)\b/.test(q)) return "Our services include Vulnerability Assessment & Penetration Testing; Web Application Security; Network & Endpoint Testing; Social Engineering & Configuration Reviews; Forensics & Incident Response; and Threat Modeling & Consulting. We also discuss lawful asset and crypto tracing. All work requires appropriate authorization and a defined scope.";
+    if (/\b(authori[sz]ation|permission|legal|lawful|scope)\b/.test(q)) return "We only support work that has appropriate lawful authorization and a clearly defined scope. We do not assist with unauthorized access, credential theft, evading security controls, or invading someone’s privacy.";
+    if (/\b(crypto|cryptocurrency|blockchain|wallet|transaction|txid|asset tracing)\b/.test(q)) return "For lawful asset or crypto tracing, preserve transaction hashes, wallet addresses, timestamps, platform names, receipts, and relevant communications. Never share private keys, seed/recovery phrases, passwords, or authentication codes. A trace does not guarantee funds can be recovered.";
+    if (/\b(hacked|incident|breach|ransomware|malware|phishing|compromised)\b/.test(q)) return "For an active incident, use a trusted device to secure affected accounts, change compromised passwords, enable MFA, contact the relevant provider or bank, and preserve logs and messages. Avoid altering affected systems unnecessarily if evidence may be needed. We can capture details for a team follow-up.";
+    if (/\b(guarantee|guaranteed|recover|recovery|will i get|success rate)\b/.test(q)) return "We cannot guarantee tracing, asset recovery, attribution, or a particular outcome. We assess available evidence and explain realistic options and limitations. Be cautious of anyone promising guaranteed recovery or asking for private keys or seed phrases.";
+    if (/\b(privacy|personal data|confidential)\b/.test(q)) return "Please share only the information needed for an initial inquiry. Do not put passwords, authentication codes, private keys, seed phrases, or full payment-card details in chat. Use the contact form for case material and share sensitive evidence only through a team-approved secure method.";
+    if (/\b(agent|human|person|representative|team member|speak to someone|live support)\b/.test(q)) { speakToAgent(); return ""; }
     const result = classify(raw);
     lastReply = result.text;
     leadIntent = result.type;
@@ -195,7 +195,7 @@ var Tawk_LoadStart = new Date();
     if (stage.startsWith("lead:")) {
       const field = stage.slice(5);
       if (requiredFields.includes(field)) {
-        if (field === "email" && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(value)) { addMessage("That email format doesn’t look right. " + fieldPrompts.email, "bot"); return; }
+        if (field === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) { addMessage("That email format doesn’t look right. " + fieldPrompts.email, "bot"); return; }
         fields[field] = value.slice(0, 300);
         const missing = nextMissingField();
         if (missing) { stage = "lead:" + missing; addMessage(fieldPrompts[missing], "bot"); return; }
@@ -223,7 +223,8 @@ var Tawk_LoadStart = new Date();
   panel.querySelectorAll("[data-action]").forEach(btn => btn.addEventListener("click", () => {
     const action = btn.dataset.action;
     if (action === "agent") { speakToAgent(); return; }
-    if (action === "case") { submitCase(); return; }\n    if (action === "quote") { requestLeadDetails("quote"); return; }
+    if (action === "case") { submitCase(); return; }
+    if (action === "quote") { requestLeadDetails("quote"); return; }
     if (action === "services") addMessage("Our services include Vulnerability Assessment & Penetration Testing, Web Application Security, Network & Endpoint Testing, Social Engineering & Configuration Reviews, Forensics & Incident Response, and Threat Modeling & Consulting. We also support lawful asset and crypto tracing within an authorized scope.", "bot");
     if (action === "safety") addMessage("Never send passwords, authentication codes, private keys, seed/recovery phrases, or full card details. Be cautious of guaranteed recovery claims. Preserve evidence and contact the relevant bank or platform directly if money or an account is at risk.", "bot");
   }));
