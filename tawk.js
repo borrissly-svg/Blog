@@ -88,7 +88,7 @@ var Tawk_LoadStart = new Date();
     window.open("https://tawk.to/chat/6ac7f89bb255d834c35d1a33/default", "_blank", "noopener");
   }
   function submitCase() {
-    window.location.href = new URL("contact.html?type=case", window.location.href).href;
+    window.location.href = new URL("/contact.html?type=case", window.location.origin).href;
   }
   function reply(raw) {
     const q = raw.toLowerCase();
