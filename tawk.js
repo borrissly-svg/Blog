@@ -44,11 +44,11 @@ var Tawk_LoadStart = new Date();
   panel.id = "zenith-chat-panel";
   panel.setAttribute("aria-label", "Ethical Zenith visitor assistant");
   panel.innerHTML = `
-    <div class="zc-head"><div><div class="zc-title">Zenith Visitor Assistant</div><div class="zc-sub">Quick answers · Case submissions · Agent support</div></div><button class="zc-close" type="button" aria-label="Close chat">×</button></div>
+    <div class="zc-head"><div><div class="zc-title">Zenith Visitor Assistant</div><div class="zc-sub">Service guidance · Quotes · Agent follow-up</div></div><button class="zc-close" type="button" aria-label="Close chat">×</button></div>
     <div class="zc-messages" role="log" aria-live="polite"></div>
     <div class="zc-actions">
       <button class="zc-action" data-action="services">Our services</button>
-      <button class="zc-action" data-action="case">Submit a case</button>
+      <button class="zc-action" data-action="case">Start an inquiry</button>\n      <button class="zc-action" data-action="quote">Request a quote</button>
       <button class="zc-action" data-action="agent">Speak with an agent</button>
       <button class="zc-action" data-action="safety">Safety tips</button>
     </div>
@@ -59,6 +59,27 @@ var Tawk_LoadStart = new Date();
 
   const messages = panel.querySelector(".zc-messages");
   const input = panel.querySelector(".zc-input");
+  const fields = { name: "", email: "", phone: "", company: "", service: "", details: "", quote: false };
+  const requiredFields = ["name", "email", "phone", "company"];
+  const fieldPrompts = {
+    name: "May I have your name so we know who we’re assisting?",
+    email: "What email address should we use to follow up with details or a quote?",
+    phone: "Is there a phone number where our team can reach you if needed?",
+    company: "What company or organization are you contacting us on behalf of?"
+  };
+  const serviceOptions = [
+    "Vulnerability Assessment & Penetration Testing",
+    "Web Application Security",
+    "Network & Endpoint Testing",
+    "Social Engineering & Configuration Reviews",
+    "Forensics & Incident Response",
+    "Threat Modeling & Consulting",
+    "Lawful asset / crypto tracing",
+    "General question"
+  ];
+  let stage = "welcome";
+  let leadIntent = "support";
+  let lastReply = "";
   function addMessage(text, who) {
     const el = document.createElement("div");
     el.className = "zc-msg " + (who === "user" ? "zc-user" : "zc-bot");
@@ -70,14 +91,72 @@ var Tawk_LoadStart = new Date();
     panel.classList.add("open");
     launcher.setAttribute("aria-expanded", "true");
     if (!messages.dataset.welcomed) {
-      addMessage("Hello! I can help with common questions about this blog, cybersecurity education, digital-asset investigations, OSINT, and contacting our team. Choose an option or type a question. For questions I cannot answer reliably, I’ll direct you to an agent.", "bot");
+      addMessage("Hello, welcome to Zenith Hackers Intelligence. We can help with authorized cybersecurity, ethical hacking, forensics, incident response, threat modeling, remediation, verification, and lawful asset or crypto tracing. What can we help you with today?", "bot");
       messages.dataset.welcomed = "1";
     }
     input.focus();
   }
   function closePanel() { panel.classList.remove("open"); launcher.setAttribute("aria-expanded", "false"); }
+  function nextMissingField() {
+    return requiredFields.find(key => !fields[key]) || "";
+  }
+  function requestLeadDetails(intent) {
+    leadIntent = intent || "support";
+    const missing = nextMissingField();
+    stage = missing ? "lead:" + missing : "lead:service";
+    const prompt = missing ? fieldPrompts[missing] : "Which service best matches your request? You can name more than one.";
+    addMessage(prompt, "bot");
+  }
+  function serviceSummary() {
+    return "Which service best matches your request? You can name more than one: " + serviceOptions.join("; ") + ".";
+  }
+  function safeLeadSummary() {
+    return [
+      "New website chat inquiry for Zenith Hackers Intelligence",
+      "Request type: " + leadIntent,
+      "Name: " + fields.name,
+      "Email: " + fields.email,
+      "Phone: " + fields.phone,
+      "Company: " + fields.company,
+      "Service: " + (fields.service || "Not specified"),
+      "Details: " + (fields.details || "Not provided")
+    ].join("\n");
+  }
+  function contactUrl() {
+    const u = new URL("/contact.html", window.location.origin);
+    u.searchParams.set("type", leadIntent === "quote" ? "quote" : "case");
+    u.searchParams.set("name", fields.name);
+    u.searchParams.set("email", fields.email);
+    u.searchParams.set("phone", fields.phone);
+    u.searchParams.set("company", fields.company);
+    u.searchParams.set("service", fields.service);
+    u.searchParams.set("summary", fields.details);
+    return u.href;
+  }
+  function finishLead() {
+    stage = "done";
+    addMessage("Thank you. We’ve captured the details you shared in this chat. Please use the contact form to send them to our team; a team member can review your request and follow up. We cannot promise a quote, tracing result, or recovery outcome before assessment.", "bot");
+    addMessage("Open the contact form: " + contactUrl(), "bot");
+    const link = document.createElement("a");
+    link.href = contactUrl();
+    link.textContent = "Continue to secure inquiry form";
+    link.target = "_self";
+    link.style.cssText = "color:#63edff;padding:0 14px 12px;overflow-wrap:anywhere";
+    panel.appendChild(link);
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "zc-action";
+    copy.textContent = "Copy inquiry summary";
+    copy.style.margin = "0 12px 12px";
+    copy.addEventListener("click", () => {
+      const blob = safeLeadSummary();
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(blob).then(() => addMessage("Inquiry summary copied. Please paste it into the contact form.", "bot")).catch(() => addMessage(blob, "bot"));
+      else addMessage(blob, "bot");
+    });
+    panel.appendChild(copy);
+  }
   function speakToAgent() {
-    addMessage("Opening live chat. If an agent is offline, leave a message in the chat or use the contact form.", "bot");
+    addMessage("We’ll try to open our live-agent chat. If no agent is available, please leave a message in Tawk.to or use our contact form.", "bot");
     try {
       if (window.Tawk_API && typeof window.Tawk_API.maximize === "function") {
         if (typeof window.Tawk_API.showWidget === "function") window.Tawk_API.showWidget();
@@ -87,29 +166,65 @@ var Tawk_LoadStart = new Date();
     } catch (e) {}
     window.open("https://tawk.to/chat/6ac7f89bb255d834c35d1a33/default", "_blank", "noopener");
   }
-  function submitCase() {
-    window.location.href = new URL("/contact.html?type=case", window.location.origin).href;
-  }
-  function reply(raw) {
+  function submitCase() { requestLeadDetails("case"); }
+  function classify(raw) {
     const q = raw.toLowerCase();
-    if (/\b(hello|hi|hey|good morning|good afternoon)\b/.test(q)) return "Hello! What would you like help with today? You can ask about our content, choose Submit a case, or connect with a live agent.";
-    if (/\b(service|services|what do you do|what can you do|offerings)\b/.test(q)) return "This site publishes educational content about cybersecurity, OSINT, digital-asset and blockchain awareness, investigations, identity protection, and risk/compliance. For a specific service request, please speak with an agent or submit an inquiry.";
-    if (/\b(case|submit|report|stolen|scam|lost funds|investigation request)\b/.test(q)) return "To submit a case or inquiry, use our contact form. Include a clear summary and any non-sensitive reference details. Never submit passwords, private keys, seed/recovery phrases, authentication codes, or full payment-card details.";
-    if (/\b(agent|human|person|representative|talk to someone|contact|support)\b/.test(q)) return "You can connect to live chat using “Speak with an agent”, or send a message through our contact form at support@zenithhackers.com.";
-    if (/\b(crypto|cryptocurrency|blockchain|wallet|transaction|txid)\b/.test(q)) return "For a digital-asset inquiry, preserve transaction hashes, wallet addresses, platform names, timestamps, receipts, and communications. Never share your private key or recovery phrase. Use the contact form to describe the situation and request a follow-up.";
-    if (/\b(osint|open source intelligence)\b/.test(q)) return "OSINT is the collection and evaluation of relevant publicly available information. Responsible work verifies sources, records context, protects privacy, and avoids conclusions that the evidence does not support. Browse our OSINT articles for more.";
-    if (/\b(security|cybersecurity|hack|hacked|phishing|account compromised|malware)\b/.test(q)) return "For an account or security incident, use a trusted device to change compromised passwords, enable multi-factor authentication, contact the affected provider, and preserve evidence. If there is immediate financial risk, contact your bank or platform directly. Do not share credentials here.";
-    if (/\b(price|cost|fee|guarantee|guaranteed recovery|recover funds|recovery)\b/.test(q)) return "I can’t confirm pricing, outcomes, or guarantee recovery through this automated helper. Please request a written response from an agent. Be cautious of anyone guaranteeing recovered funds or asking for seed phrases, private keys, or upfront payments to unlock funds.";
-    if (/\b(privacy|data|personal information)\b/.test(q)) return "Please share only the information needed to explain your question. Do not enter passwords, authentication codes, private keys, seed phrases, or payment-card details. You can read our Privacy Policy from the website footer.";
-    return "I’m not confident I can answer that accurately from the site’s published FAQ. Please choose “Speak with an agent” for a human response, or submit your question through the contact form. This basic helper does not have general-purpose AI enabled yet.";
+    if (/\\b(quote|quotation|estimate|pricing|price|cost|how much|fee|fees)\\b/.test(q)) return {type:"quote",text:"We can capture a quote request. Final pricing depends on the authorized scope, complexity, and evidence available; our team must assess it before confirming a quote."};
+    if (/\\b(vulnerability|penetration|pentest|web application|network|endpoint|social engineering|configuration review|forensics|incident response|threat model|consulting|crypto|cryptocurrency|asset tracing|blockchain)\\b/.test(q)) return {type:"service",text:"We can help route requests for authorized cybersecurity and lawful investigations. We work to a defined scope and lawful authorization, use evidence-based methods, and cannot guarantee tracing or recovery outcomes."};
+    return {type:"support",text:"We’ll do our best to help with information about our services and responsible next steps. I can’t verify every case-specific claim in this automated chat, so I’ll offer a team follow-up when needed."};
+  }
+  function answer(raw) {
+    const q = raw.toLowerCase();
+    if (/\\b(hello|hi|hey|good morning|good afternoon|good evening)\\b/.test(q)) return "Hello, welcome to Zenith Hackers Intelligence. What can we help you with today?";
+    if (/\\b(service|services|what do you do|what can you do|offerings)\\b/.test(q)) return "Our services include Vulnerability Assessment & Penetration Testing; Web Application Security; Network & Endpoint Testing; Social Engineering & Configuration Reviews; Forensics & Incident Response; and Threat Modeling & Consulting. We also discuss lawful asset and crypto tracing. All work requires appropriate authorization and a defined scope.";
+    if (/\\b(authori[sz]ation|permission|legal|lawful|scope)\\b/.test(q)) return "We only support work that has appropriate lawful authorization and a clearly defined scope. We do not assist with unauthorized access, credential theft, evading security controls, or invading someone’s privacy.";
+    if (/\\b(crypto|cryptocurrency|blockchain|wallet|transaction|txid|asset tracing)\\b/.test(q)) return "For lawful asset or crypto tracing, preserve transaction hashes, wallet addresses, timestamps, platform names, receipts, and relevant communications. Never share private keys, seed/recovery phrases, passwords, or authentication codes. A trace does not guarantee funds can be recovered.";
+    if (/\\b(hacked|incident|breach|ransomware|malware|phishing|compromised)\\b/.test(q)) return "For an active incident, use a trusted device to secure affected accounts, change compromised passwords, enable MFA, contact the relevant provider or bank, and preserve logs and messages. Avoid altering affected systems unnecessarily if evidence may be needed. We can capture details for a team follow-up.";
+    if (/\\b(guarantee|guaranteed|recover|recovery|will i get|success rate)\\b/.test(q)) return "We cannot guarantee tracing, asset recovery, attribution, or a particular outcome. We assess available evidence and explain realistic options and limitations. Be cautious of anyone promising guaranteed recovery or asking for private keys or seed phrases.";
+    if (/\\b(privacy|personal data|confidential)\\b/.test(q)) return "Please share only the information needed for an initial inquiry. Do not put passwords, authentication codes, private keys, seed phrases, or full payment-card details in chat. Use the contact form for case material and share sensitive evidence only through a team-approved secure method.";
+    if (/\\b(agent|human|person|representative|team member|speak to someone|live support)\\b/.test(q)) { speakToAgent(); return ""; }
+    const result = classify(raw);
+    lastReply = result.text;
+    leadIntent = result.type;
+    return result.text + " If you’d like a team member to review your request, choose “Speak with an agent” or “Request a quote / follow-up.”";
+  }
+  function handleInput(raw) {
+    const value = raw.trim();
+    if (!value) return;
+    addMessage(value, "user");
+    if (stage.startsWith("lead:")) {
+      const field = stage.slice(5);
+      if (requiredFields.includes(field)) {
+        if (field === "email" && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(value)) { addMessage("That email format doesn’t look right. " + fieldPrompts.email, "bot"); return; }
+        fields[field] = value.slice(0, 300);
+        const missing = nextMissingField();
+        if (missing) { stage = "lead:" + missing; addMessage(fieldPrompts[missing], "bot"); return; }
+        stage = "lead:service";
+        addMessage(serviceSummary(), "bot");
+        return;
+      }
+      if (field === "service") {
+        fields.service = value.slice(0, 500);
+        stage = "lead:details";
+        addMessage("Please briefly describe the scope or issue and what outcome you’re requesting. Do not include passwords, private keys, seed phrases, or authentication codes.", "bot");
+        return;
+      }
+      if (field === "details") {
+        fields.details = value.slice(0, 1500);
+        finishLead();
+        return;
+      }
+    }
+    const response = answer(value);
+    if (response) addMessage(response, "bot");
   }
   launcher.addEventListener("click", () => panel.classList.contains("open") ? closePanel() : openPanel());
   panel.querySelector(".zc-close").addEventListener("click", closePanel);
   panel.querySelectorAll("[data-action]").forEach(btn => btn.addEventListener("click", () => {
     const action = btn.dataset.action;
     if (action === "agent") { speakToAgent(); return; }
-    if (action === "case") { submitCase(); return; }
-    if (action === "services") addMessage("Our publication covers cybersecurity education, OSINT, digital-asset and blockchain awareness, identity protection, investigations, and risk/compliance. For a specific request, speak with an agent.", "bot");
+    if (action === "case") { submitCase(); return; }\n    if (action === "quote") { requestLeadDetails("quote"); return; }
+    if (action === "services") addMessage("Our services include Vulnerability Assessment & Penetration Testing, Web Application Security, Network & Endpoint Testing, Social Engineering & Configuration Reviews, Forensics & Incident Response, and Threat Modeling & Consulting. We also support lawful asset and crypto tracing within an authorized scope.", "bot");
     if (action === "safety") addMessage("Never send passwords, authentication codes, private keys, seed/recovery phrases, or full card details. Be cautious of guaranteed recovery claims. Preserve evidence and contact the relevant bank or platform directly if money or an account is at risk.", "bot");
   }));
   panel.querySelector(".zc-form").addEventListener("submit", event => {
