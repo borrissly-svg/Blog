@@ -17,7 +17,7 @@ if (location.pathname.includes("/articles/")) {
         linear-gradient(180deg, rgba(2,8,18,.58), rgba(2,12,24,.88)),
         radial-gradient(circle at 15% 15%, rgba(0,220,255,.18), transparent 32%),
         radial-gradient(circle at 85% 80%, rgba(70,90,255,.16), transparent 34%),
-        url("https://borrissly-svg.github.io/Blog/hero-blog.png") center center / cover fixed no-repeat !important;
+        url("https://ethicalzenithhackers.online/hero-blog.png") center center / cover fixed no-repeat !important;
       overflow-x: hidden;
     }
     body::before {
