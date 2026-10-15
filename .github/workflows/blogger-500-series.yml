@@ -1,0 +1,61 @@
+name: Publish 500-article series to Blogger
+
+on:
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: "Maximum number of new posts to publish in this run (1–50)"
+        required: true
+        default: "20"
+        type: string
+  schedule:
+    - cron: "17 9 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: blogger-500-article-series
+  cancel-in-progress: false
+
+jobs:
+  publish-batch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install requests
+
+      - name: Generate exactly 500 articles
+        run: python scripts/build_blogger_batch.py
+
+      - name: Publish a resumable batch to Blogger
+        env:
+          BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
+          BLOGGER_CLIENT_ID: ${{ secrets.BLOGGER_CLIENT_ID }}
+          BLOGGER_CLIENT_SECRET: ${{ secrets.BLOGGER_CLIENT_SECRET }}
+          BLOGGER_REFRESH_TOKEN: ${{ secrets.BLOGGER_REFRESH_TOKEN }}
+          BLOGGER_BATCH_SIZE: ${{ inputs.batch_size || '20' }}
+        run: python scripts/publish_blogger_batch.py
+
+      - name: Save publishing history
+        if: always()
+        run: |
+          if [ -f .blogger-batch-published.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add .blogger-batch-published.json
+            if ! git diff --cached --quiet; then
+              git commit -m "Track published Blogger 500-article series"
+              git push origin HEAD:main
+            fi
+          fi
