@@ -169,7 +169,7 @@ def make_post(category, topic, angle, idx):
         "<h2>Limitations</h2>",
         paragraph(category["limits"] + " The available evidence, jurisdiction, provider policies, and technical details determine which next steps are realistic."),
         "<h2>How Zenith Hackers Intelligence may help</h2>",
-        paragraph(f"{BRAND} supports authorized cybersecurity, digital forensics, incident response, evidence review, and lawful asset or crypto-tracing inquiries within a defined scope. We use evidence-based methods, explain limitations, and do not guarantee attribution or recovery. For a consultation, visit <a href=\"{CONTACT}\">{CONTACT}</a> or review our information at <a href=\"{BLOG}\">{BLOG}</a>. Share only non-sensitive initial details; never submit passwords, private keys, or recovery phrases."),
+        f"<p>{BRAND} supports authorized cybersecurity, digital forensics, incident response, evidence review, and lawful asset or crypto-tracing inquiries within a defined scope. We use evidence-based methods, explain limitations, and do not guarantee attribution or recovery. For a consultation, visit <a href=\"{CONTACT}\">Zenith Hackers Intelligence</a> or review our <a href=\"{BLOG}\">educational blog</a>. Share only non-sensitive initial details; never submit passwords, private keys, or recovery phrases.</p>",
         paragraph("This article is educational information, not legal, financial, or investment advice. Reporting options and legal requirements vary by location.")
     ]
     labels = [cat, subject, "Zenith Hackers Intelligence", "Blockchain Safety", "Digital Evidence"]
